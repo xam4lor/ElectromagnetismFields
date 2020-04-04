@@ -15,6 +15,5 @@ Electrical field of two particles with positive and negative electrical charges 
 200 particles with random charges on random positions shown in real time.
 
 
-
 ## A really interesting bug
 ![Oops](imgs/04.png)
