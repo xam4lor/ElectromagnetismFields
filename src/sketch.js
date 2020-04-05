@@ -4,20 +4,20 @@
  LINEAIRE     : [charge particule 1, charge particule 2]
  TRIANGLE     : [charge particule 1, charge particule 2, charge particule 3]
  RANDOM       : [number of random particles]
+ CUSTOM       : plaçage aléatoire des particules
 -----------------------------*/
 
-const LINE_DENSITY  = 30;                       // Number of line field around each particle
-const MODEL         = Models.m.CONDENSATEUR;    // Choosen model
-const MODEL_OPTIONS = [1, -1];                  // Choosen model options
+let LINE_DENSITY  = 30;                       // Number of line field around each particle
+let MODEL         = Models.m.CONDENSATEUR;    // Choosen model
+let MODEL_OPTIONS = [1, -1, 1];                  // Choosen model options
 
 // =================================================
 
+let stepSize    = 1;       // Iteration size (0 for no loss)
+let minFieldMag = 4*10e-5; // Minimum magnitude to stop drawing
 
 
 function runSimulator(simulator) {
-    let stepSize    = 1;       // Iteration size (0 for no loss)
-    let minFieldMag = 4*10e-5; // Minimum magnitude to stop drawing
-
     simulator
         .setEngineConfig((eC) => {
             eC.plotter.scale = { x: 2*10e-3, y: 2*10e-3 };
@@ -39,4 +39,73 @@ function computeForXYPixels(xP, yP) {
         v.y = -(((yP - height / 2) * 2 / width) * c.scale.x - c.offset.y);
 
     return v;
+}
+
+
+function updatedSimuType() {
+    MODEL = Models.getByName(document.getElementById('simuType').value);
+    if(MODEL == Models.m.CONDENSATEUR)
+        document.getElementById('options').innerHTML = '<div class="options"></div>';
+    else if(MODEL == Models.m.LINEAIRE)
+        document.getElementById('options').innerHTML = '<div class="options">'
+            + '<label>Signe de la particule 1 :<select name="txt_1" id="txt_1">'
+                + '<option value="+1">Positive</option>'
+                + '<option value="-1">Négative</option>'
+            + '</select></label>'
+            + '<div /><label>Signe de la particule 2 :<select name="txt_2" id="txt_2">'
+                + '<option value="+1">Positive</option>'
+                + '<option value="-1">Négative</option>'
+            + '</select></label>'
+        + '</div>';
+    else if(MODEL == Models.m.TRIANGLE)
+        document.getElementById('options').innerHTML = '<div class="options">'
+            + '<label>Signe de la particule 1 :<select name="txt_1" id="txt_1">'
+                + '<option value="+1">Positive</option>'
+                + '<option value="-1">Négative</option>'
+            + '</select></label>'
+            + '<div /><label>Signe de la particule 2 :<select name="txt_2" id="txt_2">'
+                + '<option value="+1">Positive</option>'
+                + '<option value="-1">Négative</option>'
+            + '</select></label>'
+            + '<div /><label>Signe de la particule 3 :<select name="txt_3" id="txt_3">'
+                + '<option value="+1">Positive</option>'
+                + '<option value="-1">Négative</option>'
+            + '</select></label>'
+        + '</div>';
+    else if(MODEL == Models.m.RANDOM)
+        document.getElementById('options').innerHTML = '<div class="options">'
+            + '<input type="number" name="txt_1" value="Nombre de particules" id="txt_1" />'
+        + '</div>';
+    else if(MODEL == Models.m.CUSTOM)
+        document.getElementById('options').innerHTML = '<div class="options"></div>';
+}
+
+function submitSimuType() {
+    background(0);
+
+    switch (MODEL) {
+        case Models.m.CONDENSATEUR:
+            MODEL_OPTIONS = [];
+            break;
+        case Models.m.LINEAIRE:
+            MODEL_OPTIONS = [
+                parseInt(document.getElementById('txt_1').value),
+                parseInt(document.getElementById('txt_2').value)
+            ];
+            break;
+        case Models.m.TRIANGLE:
+            MODEL_OPTIONS = [
+                parseInt(document.getElementById('txt_1').value),
+                parseInt(document.getElementById('txt_2').value),
+                parseInt(document.getElementById('txt_3').value)
+            ];
+            break;
+        case Models.m.RANDOM:
+            MODEL_OPTIONS = [parseInt(document.getElementById('txt_1').value)];
+            break;
+    }
+
+
+    _pSimulationInstance.plotter.objectsL = [];
+    _pSimulationInstance.plotter.objectsL.push(new Field(Models.getModel(MODEL, MODEL_OPTIONS), LINE_DENSITY, stepSize));
 }

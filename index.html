@@ -27,5 +27,22 @@
     <body>
         <div id="simulationContent">
 		</div>
+
+        <div class="buttons">
+            <div class="main-simulation">
+                <label>Type de simulation :
+                <select name="simuType" id="simuType" value="condensateur" onchange="updatedSimuType()">
+                    <option value="condensateur">Condensateur</option>
+                    <option value="lineaire">Deux particules</option>
+                    <option value="triangle">Triangle</option>
+                    <option value="random">Aléatoire</option>
+                </select></label>
+            </div>
+
+            <div id="options" class="main-parameters">
+            </div>
+
+            <button type="submit" onclick="submitSimuType()">Simuler</button>
+        </div>
     </body>
 </html>

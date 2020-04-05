@@ -3,8 +3,29 @@ class Models {
         CONDENSATEUR : 'condensateur',
         LINEAIRE     : 'lineaire',
         TRIANGLE     : 'triangle',
-        RANDOM       : 'random'
+        RANDOM       : 'random',
+        CUSTOM       : 'custom'
     };
+
+    static getByName(name) {
+        switch (name) {
+            case 'condensateur':
+                return Models.m.CONDENSATEUR;
+                break;
+            case 'lineaire':
+                return Models.m.LINEAIRE;
+                break;
+            case 'triangle':
+                return Models.m.TRIANGLE;
+                break;
+            case 'random':
+                return Models.m.RANDOM;
+                break;
+            case 'custom':
+                return Models.m.CUSTOM;
+                break;
+        }
+    }
 
     static getModel(model, options = [1, 1, 1]) {
         let particles = [];
@@ -43,7 +64,7 @@ class Models {
                 particles = [
                     {x : -10e-3 / 2, y : 0, q : options[0], r : particleRadius},
                     {x :  10e-3 / 2, y : 0, q : options[1], r : particleRadius},
-                    {x :  0        , y : 1/sqrt(2) * 10e-3 / 2, q : option[2], r : particleRadius}
+                    {x :  0        , y : 1/Math.sqrt(2) * 10e-3 / 2, q : options[2], r : particleRadius}
                 ];
                 break;
 
