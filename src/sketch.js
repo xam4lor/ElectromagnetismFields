@@ -25,6 +25,8 @@ function runSimulator(simulator) {
             eC.plotter.backgroundColor.draw = false;
         })
         .addObjects(Field, 1, Models.getModel(MODEL, MODEL_OPTIONS), LINE_DENSITY, stepSize);
+
+    document.getElementById('simuType').value = 'condensateur';
 }
 
 
