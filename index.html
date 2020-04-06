@@ -9,15 +9,43 @@
 				margin: 0;
 				background-color: black;
 				color: white;
+                font-family: "Segoe UI", Arial, sans-serif !important;
 			}
 
 			#simulationContent {
 				text-align: center;
 			}
+
+            .controls {
+                text-align: left;
+                position: absolute;
+                top: 2%;
+                padding: 12px 12px 12px 12px;
+                font-size: 12px;
+                margin: 0 0 0 72px;
+                background-color: #202020;
+                border-radius: 16px;
+            }
+
+            .buttons {
+                display: flex;
+                text-align: center;
+                position: absolute;
+                top: 89%;
+                padding: 12px 12px 12px 12px;
+                font-size: 17px;
+                margin: 0 0 0 72px;
+                background-color: #202020;
+                border-radius: 16px;
+            }
+
+            .buttons > button, .buttons > select, .buttons > div > label {
+                margin: 0 5px 0 5px;
+            }
 		</style>
 
-        <script type="text/javascript" src="src/Models.js"></script>
         <script type="text/javascript" src="src/Field.js"></script>
+        <script type="text/javascript" src="src/Models.js"></script>
         <script type="text/javascript" src="src/sketch.js"></script>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
@@ -28,6 +56,12 @@
         <div id="simulationContent">
 		</div>
 
+        <div class="controls">
+            <label>Contrôles :</label><br />
+            <label>  - (<i>En simulation</i>) : Click pour ajouter une ligne de champ personnalisée</label><br />
+            <label>  - (<i>Simulation custom</i>) : Click droit pour ajouter une particule + (maintenir shift pour -)</label>
+        </div>
+
         <div class="buttons">
             <div class="main-simulation">
                 <label>Type de simulation :
@@ -36,6 +70,7 @@
                     <option value="lineaire">Deux particules</option>
                     <option value="triangle">Triangle</option>
                     <option value="random">Aléatoire</option>
+                    <option value="custom">Personnalisé</option>
                 </select></label>
             </div>
 

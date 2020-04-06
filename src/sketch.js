@@ -14,7 +14,7 @@ let MODEL_OPTIONS = [1, -1, 1];                  // Choosen model options
 // =================================================
 
 let stepSize    = 1;       // Iteration size (0 for no loss)
-let minFieldMag = 4*10e-5; // Minimum magnitude to stop drawing
+let minFieldMag = 2*10e-6; // Minimum magnitude to stop drawing
 
 
 function runSimulator(simulator) {
@@ -45,11 +45,15 @@ function computeForXYPixels(xP, yP) {
 
 
 function updatedSimuType() {
+    window.mouseClicked = () => {};
+    _pSimulationInstance.plotter.objectsL = [];
+
+
     MODEL = Models.getByName(document.getElementById('simuType').value);
     if(MODEL == Models.m.CONDENSATEUR)
-        document.getElementById('options').innerHTML = '<div class="options"></div>';
+        document.getElementById('options').innerHTML = '';
     else if(MODEL == Models.m.LINEAIRE)
-        document.getElementById('options').innerHTML = '<div class="options">'
+        document.getElementById('options').innerHTML = ''
             + '<label>Signe de la particule 1 :<select name="txt_1" id="txt_1">'
                 + '<option value="+1">Positive</option>'
                 + '<option value="-1">Négative</option>'
@@ -58,9 +62,9 @@ function updatedSimuType() {
                 + '<option value="+1">Positive</option>'
                 + '<option value="-1">Négative</option>'
             + '</select></label>'
-        + '</div>';
+        + '';
     else if(MODEL == Models.m.TRIANGLE)
-        document.getElementById('options').innerHTML = '<div class="options">'
+        document.getElementById('options').innerHTML = ''
             + '<label>Signe de la particule 1 :<select name="txt_1" id="txt_1">'
                 + '<option value="+1">Positive</option>'
                 + '<option value="-1">Négative</option>'
@@ -73,13 +77,21 @@ function updatedSimuType() {
                 + '<option value="+1">Positive</option>'
                 + '<option value="-1">Négative</option>'
             + '</select></label>'
-        + '</div>';
+        + '';
     else if(MODEL == Models.m.RANDOM)
-        document.getElementById('options').innerHTML = '<div class="options">'
+        document.getElementById('options').innerHTML = '<label>Nombre de particules :'
             + '<input type="number" name="txt_1" value="Nombre de particules" id="txt_1" />'
-        + '</div>';
-    else if(MODEL == Models.m.CUSTOM)
-        document.getElementById('options').innerHTML = '<div class="options"></div>';
+        + '</label>';
+    else if(MODEL == Models.m.CUSTOM) {
+        background(0);
+        document.getElementById('options').innerHTML = '';
+        _pSimulationInstance.plotter.objectsL = [];
+        Models.tmpParticles = [];
+
+        window.mouseClicked = function() {
+            Models.newParticule(mouseX, mouseY, keyIsDown(SHIFT) ? -1 : +1);
+        };
+    }
 }
 
 function submitSimuType() {

@@ -1,12 +1,15 @@
 class Field {
+    static particuleDRadius = 10;
+    static k = 1 / (4 * Math.PI * 8.854*10e-12);
+
+
     constructor(particles, fieldNbLinePerParticle, step, minFieldMag) {
         this.particles   = particles;
         this.step        = step + 1;
         this.minFieldMag = minFieldMag;
-        this.toAdd     = [];
-        this.pathStop  = []; // list of every lines that are finished
-
-        this.k = 1 / (4 * Math.PI * 8.854*10e-12);
+        this.toAdd       = [];
+        this.pathStop    = []; // list of every lines that are finished
+        this.canStop     = false;
 
 
         // GENERATE EACH STARTING PARTICLE POINTS (in round area around each particle)
@@ -47,16 +50,24 @@ class Field {
 
         let fieldMag = fieldAtPosC.mag();
 
+        if(!this.canStop) {
+            let c = _pSimulationInstance.getEngineConfig().plotter.scale;
+            if(
+                lastElement.x < -c.x || lastElement.x > c.x ||
+                lastElement.y < -c.y || lastElement.y > c.y
+            ) this.canStop = true;
+        }
+
         // Test if stop drawing line
         for (let p = 0; p < this.particles.length; p++) {
-            if(fieldMag < this.minFieldMag) {
+            if(this.canStop && !this.path[lineID].madeByUser && fieldMag < this.minFieldMag) {
                 this.path.splice(lineID, 1);
                 return;
             }
 
             if(fieldMag > 10e-5)
                 fieldAtPosC.normalize().mult(10e-5);
-            else if(Math.sqrt((fieldAtPosC.x - this.particles[p].x)**2 + (fieldAtPosC.y - this.particles[p].y)**2) < this.particles[p].r) {
+            else if(this.canStop && !this.path[lineID].madeByUser && Math.sqrt((fieldAtPosC.x - this.particles[p].x)**2 + (fieldAtPosC.y - this.particles[p].y)**2) < this.particles[p].r) {
                 this.path.splice(lineID, 1);
                 return;
             }
@@ -115,7 +126,12 @@ class Field {
             if(this.particles[i].q < 0)
                 c = 'green';
 
-            drawer.noStroke().fill(c).ellipse(this.particles[i].x, this.particles[i].y, 10, 10);
+            drawer.noStroke().fill(c).ellipse(
+                this.particles[i].x,
+                this.particles[i].y,
+                Field.particuleDRadius,
+                Field.particuleDRadius
+            );
         }
 
     }
@@ -133,7 +149,7 @@ class Field {
             let v = new Vector(pos.x - this.particles[i].x, pos.y - this.particles[i].y);
             eTotal.add(v
                 .div(v.mag()**3)
-                .mult(this.k)
+                .mult(Field.k)
                 .mult(sign * this.particles[i].q * 1.602*10e-19)
             );
         }
