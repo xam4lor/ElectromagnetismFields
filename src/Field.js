@@ -6,10 +6,10 @@ class Field {
     constructor(particles, fieldNbLinePerParticle, step, minFieldMag) {
         this.particles   = particles;
         this.step        = step + 1;
-        this.minFieldMag = minFieldMag;
         this.toAdd       = [];
         this.pathStop    = []; // list of every lines that are finished
         this.canStop     = false;
+        this.minFieldMag = minFieldMag;
 
 
         // GENERATE EACH STARTING PARTICLE POINTS (in round area around each particle)
@@ -36,6 +36,13 @@ class Field {
         }
 
         window.mouseClicked = this.onClick;
+
+        window.setTimeout(function() {
+            let path = window._pSimulationInstance.plotter.objectsL[0];
+            for (let i = 0; i < path.length; i++)
+                if(path[i].madeByUser)
+                    window._pSimulationInstance.plotter.objectsL[0].path[i].path = [new Vector(Infinity, Infinity)];
+        }, 3000);
     }
 
 

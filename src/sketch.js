@@ -14,7 +14,7 @@ let MODEL_OPTIONS = [1, -1, 1];                  // Choosen model options
 // =================================================
 
 let stepSize    = 1;       // Iteration size (0 for no loss)
-let minFieldMag = 2*10e-6; // Minimum magnitude to stop drawing
+let minFieldMag = 2*10e-10; // Minimum magnitude to stop drawing
 
 
 function runSimulator(simulator) {
@@ -24,7 +24,7 @@ function runSimulator(simulator) {
             eC.plotter.displayGrid = false;
             eC.plotter.backgroundColor.draw = false;
         })
-        .addObjects(Field, 1, Models.getModel(MODEL, MODEL_OPTIONS), LINE_DENSITY, stepSize);
+        .addObjects(Field, 1, Models.getModel(MODEL, MODEL_OPTIONS), LINE_DENSITY, stepSize, minFieldMag);
 
     document.getElementById('simuType').value = 'condensateur';
 }

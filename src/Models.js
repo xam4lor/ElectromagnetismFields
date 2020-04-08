@@ -7,7 +7,7 @@ class Models {
         CUSTOM       : 'custom'
     };
 
-    static particleRadius = 4*10e-4;
+    static particleRadius = 4*10e-5;
 
     static getByName(name) {
         switch (name) {
