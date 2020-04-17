@@ -1,41 +1,38 @@
-// ================= CONFIGURATION =================
-/**----- MODELS (options) -----
- CONDENSATEUR : []
- LINEAIRE     : [charge particule 1, charge particule 2]
- TRIANGLE     : [charge particule 1, charge particule 2, charge particule 3]
- RANDOM       : [number of random particles]
- CUSTOM       : plaçage aléatoire des particules
------------------------------*/
-
-let LINE_DENSITY  = 30;                       // Number of line field around each particle
-let MODEL         = Models.m.CONDENSATEUR;    // Choosen model
-let MODEL_OPTIONS = [1, -1, 1];               // Choosen model options
-
-// =================================================
-
-let stepSize    = 1;       // Iteration size (0 for no loss)
-let minFieldMag = 2*10e-10; // Minimum magnitude to stop drawing
-
-let fieldRepresentation = {
-    values : {
-        max :   1.5e-5,
-        min : 9.06e-12
+let config = {
+    main : {
+        line_density : 35,       // Number of line field around each particle
+        minFieldMag  : 2*10e-10  // Minimum magnitude to stop drawing
     },
-    colors : {
-        positive : { r : 255, g: 0, b: 0   },
-        negative : { r :   0, g: 0, b: 255 }
+    colorRepresentation : {
+        values : {
+            max :  1.5e-5,  // Gradiant max value
+            min : 9.06e-12  // Gradiant min value
+        },
+        colors : {
+            positive : { r : 255, g: 0, b: 0   },   // Positive particles color
+            negative : { r :   0, g: 0, b: 255 }    // Negative particles color
+        }
+    },
+    advanced : {
+        stepSize : 0,   // Step drawing size (>0, 0 for no loss)
+        model    : Models.m.CONDENSATEUR,
+        model_options : [1, -1, 1],
+        screen_dimens : { x : 1.3*2*10e-3, y: 2*10e-3 }
     }
-}
-
+};
 
 function runSimulator(simulator) {
     simulator
         .setEngineConfig((eC) => {
-            eC.plotter.scale = { x: 2*10e-3, y: 2*10e-3 };
+            eC.plotter.scale = config.advanced.screen_dimens;
             eC.plotter.displayGrid = false;
             eC.plotter.backgroundColor.draw = false;
         })
-        .addObjects(Field, 1, Models.getModel(MODEL, MODEL_OPTIONS), LINE_DENSITY, stepSize, minFieldMag, fieldRepresentation);
+        .addObjects(
+            Field, 1, Models.getModel(config.advanced.model, config.advanced.model_options),
+            config.main.line_density, config.advanced.stepSize, config.main.minFieldMag,
+            config.colorRepresentation
+        );
 
     document.getElementById('simuType').value = 'condensateur';
 }
@@ -60,10 +57,10 @@ function updatedSimuType() {
     _pSimulationInstance.plotter.objectsL = [];
 
 
-    MODEL = Models.getByName(document.getElementById('simuType').value);
-    if(MODEL == Models.m.CONDENSATEUR)
+    config.advanced.model = Models.getByName(document.getElementById('simuType').value);
+    if(config.advanced.model == Models.m.CONDENSATEUR)
         document.getElementById('options').innerHTML = '';
-    else if(MODEL == Models.m.LINEAIRE)
+    else if(config.advanced.model == Models.m.LINEAIRE)
         document.getElementById('options').innerHTML = ''
             + '<label>Signe de la particule 1 :<select name="txt_1" id="txt_1">'
                 + '<option value="+1">Positive</option>'
@@ -74,7 +71,7 @@ function updatedSimuType() {
                 + '<option value="-1">Négative</option>'
             + '</select></label>'
         + '';
-    else if(MODEL == Models.m.TRIANGLE)
+    else if(config.advanced.model == Models.m.TRIANGLE)
         document.getElementById('options').innerHTML = ''
             + '<label>Signe de la particule 1 :<select name="txt_1" id="txt_1">'
                 + '<option value="+1">Positive</option>'
@@ -89,11 +86,11 @@ function updatedSimuType() {
                 + '<option value="-1">Négative</option>'
             + '</select></label>'
         + '';
-    else if(MODEL == Models.m.RANDOM)
+    else if(config.advanced.model == Models.m.RANDOM)
         document.getElementById('options').innerHTML = '<label>Nombre de particules :'
             + '<input type="number" name="txt_1" value="Nombre de particules" id="txt_1" />'
         + '</label>';
-    else if(MODEL == Models.m.CUSTOM) {
+    else if(config.advanced.model == Models.m.CUSTOM) {
         background(0);
         document.getElementById('options').innerHTML = '';
         _pSimulationInstance.plotter.objectsL = [];
@@ -108,29 +105,32 @@ function updatedSimuType() {
 function submitSimuType() {
     background(0);
 
-    switch (MODEL) {
+    switch (config.advanced.model) {
         case Models.m.CONDENSATEUR:
-            MODEL_OPTIONS = [];
+            config.advanced.model_options = [];
             break;
         case Models.m.LINEAIRE:
-            MODEL_OPTIONS = [
+            config.advanced.model_options = [
                 parseInt(document.getElementById('txt_1').value),
                 parseInt(document.getElementById('txt_2').value)
             ];
             break;
         case Models.m.TRIANGLE:
-            MODEL_OPTIONS = [
+            config.advanced.model_options = [
                 parseInt(document.getElementById('txt_1').value),
                 parseInt(document.getElementById('txt_2').value),
                 parseInt(document.getElementById('txt_3').value)
             ];
             break;
         case Models.m.RANDOM:
-            MODEL_OPTIONS = [parseInt(document.getElementById('txt_1').value)];
+            config.advanced.model_options = [parseInt(document.getElementById('txt_1').value)];
             break;
     }
 
 
     _pSimulationInstance.plotter.objectsL = [];
-    _pSimulationInstance.plotter.objectsL.push(new Field(Models.getModel(MODEL, MODEL_OPTIONS), LINE_DENSITY, stepSize));
+    _pSimulationInstance.plotter.objectsL.push(
+        new Field(Models.getModel(config.advanced.model, config.advanced.model_options), config.main.line_density,
+        config.advanced.stepSize, config.main.minFieldMag, config.colorRepresentation)
+    );
 }

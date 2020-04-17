@@ -8,6 +8,7 @@ class Field {
         this.toAdd       = [];
         this.pathStop    = []; // list of every lines that are finished
         this.canStop     = false;
+        this.drawingVals = drawingVals;
 
 
         // GENERATE EACH STARTING PARTICLE POINTS (in round area around each particle)
@@ -28,7 +29,7 @@ class Field {
             this.path[el] = {
                 path  : [new Vector(pathBegin[el].x, pathBegin[el].y)],
                 sign  : pathBegin[el].sign,
-                color : { r : 255, g : 255, b : 255 },
+                color : { r : 0, g : 0, b : 0 },
                 madeByUser : false,
                 newFieldMag : 0
             };
@@ -130,18 +131,17 @@ class Field {
 
         // Draw particle sources
         for (let i = 0; i < this.particles.length; i++) {
-            let c = 'red';
+            let c = this.drawingVals.colors.positive;
             if(this.particles[i].q < 0)
-                c = 'green';
+                c = this.drawingVals.colors.negative;
 
-            drawer.noStroke().fill(c).ellipse(
+            drawer.noStroke().fill(c.r, c.g, c.b).ellipse(
                 this.particles[i].x,
                 this.particles[i].y,
                 Field.particuleDRadius,
                 Field.particuleDRadius
             );
         }
-
     }
 
 
@@ -149,7 +149,7 @@ class Field {
     /**
     * @param pos The given position Vector<x, y>
     * @param sign The sign of the particle
-    * @return The value of the Electrical field at a certain point
+    * @return The vectors and value of the Electrical field at a certain point
     */
     getElectricFieldAt(pos, sign) {
         let eTotal = new Vector();
@@ -191,17 +191,16 @@ class Field {
     * @return a color {x, y, z}
     */
     getColor(el) {
-        let fR = fieldRepresentation;
-        let p = ((el.newFieldMag - fR.values.min) / fR.values.max + 1) / 2;
+        let p = ((el.newFieldMag - this.drawingVals.values.min) / this.drawingVals.values.max + 1) / 2;
 
-        if(el.newFieldMag > fR.values.max)
+        if(el.newFieldMag > this.drawingVals.values.max)
             p = 1;
         if(p < 0)
             p = 0;
 
-        el.color.r = Math.round(fR.colors.positive.r * p + fR.colors.negative.r * (1 - p));
-        el.color.g = Math.round(fR.colors.positive.g * p + fR.colors.negative.g * (1 - p));
-        el.color.b = Math.round(fR.colors.positive.b * p + fR.colors.negative.b * (1 - p));
+        el.color.r = Math.round(this.drawingVals.colors.positive.r * p + this.drawingVals.colors.negative.r * (1 - p));
+        el.color.g = Math.round(this.drawingVals.colors.positive.g * p + this.drawingVals.colors.negative.g * (1 - p));
+        el.color.b = Math.round(this.drawingVals.colors.positive.b * p + this.drawingVals.colors.negative.b * (1 - p));
 
         return el.color;
     }
