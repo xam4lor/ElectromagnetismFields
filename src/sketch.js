@@ -9,12 +9,23 @@
 
 let LINE_DENSITY  = 30;                       // Number of line field around each particle
 let MODEL         = Models.m.CONDENSATEUR;    // Choosen model
-let MODEL_OPTIONS = [1, -1, 1];                  // Choosen model options
+let MODEL_OPTIONS = [1, -1, 1];               // Choosen model options
 
 // =================================================
 
 let stepSize    = 1;       // Iteration size (0 for no loss)
 let minFieldMag = 2*10e-10; // Minimum magnitude to stop drawing
+
+let fieldRepresentation = {
+    values : {
+        max :   1.5e-5,
+        min : 9.06e-12
+    },
+    colors : {
+        positive : { r : 255, g: 0, b: 0   },
+        negative : { r :   0, g: 0, b: 255 }
+    }
+}
 
 
 function runSimulator(simulator) {
@@ -24,7 +35,7 @@ function runSimulator(simulator) {
             eC.plotter.displayGrid = false;
             eC.plotter.backgroundColor.draw = false;
         })
-        .addObjects(Field, 1, Models.getModel(MODEL, MODEL_OPTIONS), LINE_DENSITY, stepSize, minFieldMag);
+        .addObjects(Field, 1, Models.getModel(MODEL, MODEL_OPTIONS), LINE_DENSITY, stepSize, minFieldMag, fieldRepresentation);
 
     document.getElementById('simuType').value = 'condensateur';
 }

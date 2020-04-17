@@ -2,14 +2,12 @@ class Field {
     static particuleDRadius = 10;
     static k = 1 / (4 * Math.PI * 8.854*10e-12);
 
-
-    constructor(particles, fieldNbLinePerParticle, step, minFieldMag) {
+    constructor(particles, fieldNbLinePerParticle, step, minFieldMag, drawingVals) {
         this.particles   = particles;
         this.step        = step + 1;
         this.toAdd       = [];
         this.pathStop    = []; // list of every lines that are finished
         this.canStop     = false;
-        this.minFieldMag = minFieldMag;
 
 
         // GENERATE EACH STARTING PARTICLE POINTS (in round area around each particle)
@@ -31,7 +29,8 @@ class Field {
                 path  : [new Vector(pathBegin[el].x, pathBegin[el].y)],
                 sign  : pathBegin[el].sign,
                 color : { r : 255, g : 255, b : 255 },
-                madeByUser : false
+                madeByUser : false,
+                newFieldMag : 0
             };
         }
 
@@ -55,7 +54,7 @@ class Field {
         let lastElement = currentPath[currentPath.length - 1];
         let fieldAtPosC = this.getElectricFieldAt(lastElement, this.path[lineID].sign);
 
-        let fieldMag = fieldAtPosC.mag();
+        let fieldMag = fieldAtPosC.vec.mag();
 
         if(!this.canStop) {
             let c = _pSimulationInstance.getEngineConfig().plotter.scale;
@@ -65,6 +64,8 @@ class Field {
             ) this.canStop = true;
         }
 
+        this.path[lineID].newFieldMag = fieldAtPosC.val;
+
         // Test if stop drawing line
         for (let p = 0; p < this.particles.length; p++) {
             if(this.canStop && !this.path[lineID].madeByUser && fieldMag < this.minFieldMag) {
@@ -73,15 +74,15 @@ class Field {
             }
 
             if(fieldMag > 10e-5)
-                fieldAtPosC.normalize().mult(10e-5);
-            else if(this.canStop && !this.path[lineID].madeByUser && Math.sqrt((fieldAtPosC.x - this.particles[p].x)**2 + (fieldAtPosC.y - this.particles[p].y)**2) < this.particles[p].r) {
+                fieldAtPosC.vec.normalize().mult(10e-5);
+            else if(this.canStop && !this.path[lineID].madeByUser && Math.sqrt((fieldAtPosC.vec.x - this.particles[p].x)**2 + (fieldAtPosC.vec.y - this.particles[p].y)**2) < this.particles[p].r) {
                 this.path.splice(lineID, 1);
                 return;
             }
         }
 
         // Add next point to current line
-        this.path[lineID].path.push(fieldAtPosC.mult(this.step).add(lastElement));
+        this.path[lineID].path.push(fieldAtPosC.vec.mult(this.step).add(lastElement));
     }
 
 
@@ -107,7 +108,7 @@ class Field {
         // Draw every line field
         for (let el = 0; el < this.path.length; el++) {
             let pathLength = this.path[el].path.length - 1;
-            let c = this.path[el].color;
+            let c = this.getColor(this.path[el]);
 
             if(!this.path[el].madeByUser)
                 drawer.noFill().strokeWeight(1);
@@ -152,19 +153,20 @@ class Field {
     */
     getElectricFieldAt(pos, sign) {
         let eTotal = new Vector();
+        let valTot = 0;
         for (let i = 0; i < this.particles.length; i++) {
             let v = new Vector(pos.x - this.particles[i].x, pos.y - this.particles[i].y);
-            eTotal.add(v
-                .div(v.mag()**3)
-                .mult(Field.k)
-                .mult(sign * this.particles[i].q * 1.602*10e-19)
-            );
+            let newVal = 1/(v.mag()**3) * Field.k * sign * this.particles[i].q * 1.602*10e-19;
+            eTotal.add(v.mult(newVal));
+            valTot += newVal * 10e-5;
         }
-        return eTotal;
+        return { vec: eTotal, val : valTot * sign };
     }
 
 
-
+    /**
+    * Draw vector lines onClick
+    */
     onClick() {
         let c = _pSimulationInstance.plotter.objectsL[0];
         let v = computeForXYPixels(mouseX, mouseY);
@@ -181,5 +183,26 @@ class Field {
             color : { r : 0, g : 255, b : 0 },
             madeByUser : true
         });
+    }
+
+
+    /**
+    * @param val Current field value to be colored
+    * @return a color {x, y, z}
+    */
+    getColor(el) {
+        let fR = fieldRepresentation;
+        let p = ((el.newFieldMag - fR.values.min) / fR.values.max + 1) / 2;
+
+        if(el.newFieldMag > fR.values.max)
+            p = 1;
+        if(p < 0)
+            p = 0;
+
+        el.color.r = Math.round(fR.colors.positive.r * p + fR.colors.negative.r * (1 - p));
+        el.color.g = Math.round(fR.colors.positive.g * p + fR.colors.negative.g * (1 - p));
+        el.color.b = Math.round(fR.colors.positive.b * p + fR.colors.negative.b * (1 - p));
+
+        return el.color;
     }
 }
