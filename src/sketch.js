@@ -5,8 +5,9 @@ let config = {
     },
     colorRepresentation : {
         values : {
-            max :  1.5e-5,  // Gradiant max value
-            min : 9.06e-12  // Gradiant min value
+            max  :  1.5e-5,  // Gradiant max value
+            min  : 9.06e-12, // Gradiant min value
+            auto : true      // Auto-compute theses values
         },
         colors : {
             positive : { r : 255, g: 0, b: 0   },   // Positive particles color
@@ -16,17 +17,17 @@ let config = {
     advanced : {
         stepSize : 0,   // Step drawing size (>0, 0 for no loss)
         model    : Models.m.CONDENSATEUR,
-        model_options : [1, -1, 1],
-        screen_dimens : { x : 1.3*2*10e-3, y: 2*10e-3 }
+        model_options : [1, -1, 1]
     }
 };
 
 function runSimulator(simulator) {
     simulator
         .setEngineConfig((eC) => {
-            eC.plotter.scale = config.advanced.screen_dimens;
+            eC.plotter.scale = { x : 1.3*2*10e-3, y: 2*10e-3 };
             eC.plotter.displayGrid = false;
             eC.plotter.backgroundColor.draw = false;
+            eC.plotter.scale.squareByX = true;
         })
         .addObjects(
             Field, 1, Models.getModel(config.advanced.model, config.advanced.model_options),
@@ -125,6 +126,27 @@ function submitSimuType() {
         case Models.m.RANDOM:
             config.advanced.model_options = [parseInt(document.getElementById('txt_1').value)];
             break;
+    }
+
+    if(config.colorRepresentation.values.auto) {
+        if(config.advanced.model == Models.m.CONDENSATEUR)
+            config.colorRepresentation.values = {
+                max  :  1.5e-5,  // Gradiant max value
+                min  : 9.06e-12, // Gradiant min value
+                auto : true      // Auto-compute theses values
+            };
+        else if(config.advanced.model == Models.m.LINEAIRE)
+            config.colorRepresentation.values = {
+                max  :  1.5e-6,  // Gradiant max value
+                min  : 9.06e-12, // Gradiant min value
+                auto : true      // Auto-compute theses values
+            };
+        else
+            config.colorRepresentation.values = {
+                max  :  1.5e-5,  // Gradiant max value
+                min  : 9.06e-12, // Gradiant min value
+                auto : true      // Auto-compute theses values
+            };
     }
 
 
