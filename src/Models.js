@@ -39,6 +39,7 @@ class Models {
                     particles.push({
                         x : -10e-3 + 10e-3 / (nbSize / 2) * i,
                         y : -10e-3 / 2,
+                        z : 0,
                         q : -1,
                         r : Models.particleRadius
                     });
@@ -46,6 +47,7 @@ class Models {
                     particles.push({
                         x : -10e-3 + 10e-3 / (nbSize / 2) * i,
                         y : +10e-3 / 2,
+                        z : 0,
                         q : +1,
                         r : Models.particleRadius
                     });
@@ -63,9 +65,9 @@ class Models {
 
             case Models.m.TRIANGLE:
                 particles = [
-                    {x : -10e-3 / 2, y : 0, q : options[0], r : Models.particleRadius},
-                    {x :  10e-3 / 2, y : 0, q : options[1], r : Models.particleRadius},
-                    {x :  0        , y : 1/Math.sqrt(2) * 10e-3 / 2, q : options[2], r : Models.particleRadius}
+                    {x : -10e-3 / 2, y : 0, z : 0, q : options[0], r : Models.particleRadius},
+                    {x :  10e-3 / 2, y : 0, z : 0, q : options[1], r : Models.particleRadius},
+                    {x :  0        , y : 1/Math.sqrt(2) * 10e-3 / 2, z : 0, q : options[2], r : Models.particleRadius}
                 ];
                 break;
 
@@ -76,6 +78,7 @@ class Models {
                     particles.push({
                         x : -c.x + Math.random() * c.x * 2,
                         y : -c.y + Math.random() * c.y * 2,
+                        z : 0,
                         q : Math.sign(Math.random() - 0.5),
                         r : Models.particleRadius
                     });
@@ -98,6 +101,7 @@ class Models {
         Models.tmpParticles.push({
             x : v.x,
             y : v.y,
+            z : v.z,
             q : q,
             r : Models.particleRadius
         });

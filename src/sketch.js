@@ -1,6 +1,6 @@
 let config = {
     main : {
-        line_density : 35,       // Number of line field around each particle
+        line_density : 6,       // Number of line field around each particle (35)
         minFieldMag  : 2*10e-10  // Minimum magnitude to stop drawing
     },
     colorRepresentation : {
@@ -21,10 +21,11 @@ let config = {
     }
 };
 
+
 function runSimulator(simulator) {
     simulator
         .setEngineConfig((eC) => {
-            eC.plotter.scale = { x : 1.3*2*10e-3, y: 2*10e-3 };
+            eC.plotter.scale = { x : 1.3*2*10e-3, y : 1.3*2*10e-3, z : 1.3*2*10e-3 };
             eC.plotter.displayGrid = false;
             eC.plotter.backgroundColor.draw = false;
             eC.plotter.scale.squareByX = true;
@@ -36,21 +37,28 @@ function runSimulator(simulator) {
         );
 
     document.getElementById('simuType').value = 'condensateur';
+
+
+    window.windowResized = function() {
+        let p = _pSimulationInstance.getCanvasProportions(_pSimulationInstance.config.engine.window.proportions);
+        resizeCanvas(p.w, p.h);
+        window.submitSimuType();
+    };
 }
 
 
 
-function computeForXYPixels(xP, yP) {
-    let c = _pSimulationInstance.config.engine.plotter;
-    let v = new Vector((xP * 2 / width - 1) * c.scale.x - c.offset.x);
-
-    if(!c.scale.squareByX)
-        v.y = -((yP * 2 / height - 1) * c.scale.y - c.offset.y);
-    else
-        v.y = -(((yP - height / 2) * 2 / width) * c.scale.x - c.offset.y);
-
-    return v;
-}
+// function computeForXYPixels(xP, yP) {
+//     let c = _pSimulationInstance.config.engine.plotter;
+//     let v = new Vector((xP * 2 / width - 1) * c.scale.x - c.offset.x);
+//
+//     if(!c.scale.squareByX)
+//         v.y = -((yP * 2 / height - 1) * c.scale.y - c.offset.y);
+//     else
+//         v.y = -(((yP - height / 2) * 2 / width) * c.scale.x - c.offset.y);
+//
+//     return v;
+// }
 
 
 function updatedSimuType() {
