@@ -57,8 +57,8 @@ class Models {
 
             case Models.m.LINEAIRE:
                 particles = [
-                    {x : -10e-3 / 2, y : 0, q : options[0], r : Models.particleRadius},
-                    {x :  10e-3 / 2, y : 0, q : options[1], r : Models.particleRadius}
+                    {x : -10e-3 / 2, y : 0, z : 0, q : options[0], r : Models.particleRadius},
+                    {x :  10e-3 / 2, y : 0, z : 0, q : options[1], r : Models.particleRadius}
                 ];
                 break;
 

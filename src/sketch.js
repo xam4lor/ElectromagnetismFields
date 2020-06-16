@@ -1,6 +1,6 @@
 let config = {
     main : {
-        line_density : 6,       // Number of line field around each particle (35)
+        line_density : 35,       // Number of line field around each particle (35)
         minFieldMag  : 2*10e-10  // Minimum magnitude to stop drawing
     },
     colorRepresentation : {
