@@ -1,8 +1,10 @@
 class Field {
-    static particuleDRadius = 10;
+    static particuleDRadius = 4;
     static k = 1 / (4 * Math.PI * 8.854*10e-12);
 
     constructor(particles, fieldNbLinePerParticle, step, minFieldMag, drawingVals) {
+    	this.firstDraw = true;
+
         _pSimulationInstance.config.engine.plotter.offset.z = 0;
 
         _pSimulationInstance.plotter.computeForXYZ = (xRel, yRel, zRel) => {
@@ -81,6 +83,7 @@ class Field {
         }
 
         // GENERATE EACH SMALL LINE PARTICULES
+        this.pathLastId = 0;
         this.path = [];
         for (let el = 0; el < pathBegin.length; el++) {
             this.path[el] = {
@@ -151,9 +154,11 @@ class Field {
     * @param dt Delta-t time
     */
     update(dt) {
+    	lights();
+
         // Orbit control
-        if(mouseIsPressed)
-            window.submitSimuType();
+        // if(mouseIsPressed)
+            // window.submitSimuType();
         orbitControl(5, 5);
 
 
@@ -162,41 +167,12 @@ class Field {
 
         for (let i = 0; i < this.toAdd.length; i++)
             this.path.push(this.toAdd[i]);
+
         this.toAdd = [];
     }
 
 
-    /**
-    * Draw on the screen
-    * @param drawer The drawer class parameter
-    */
-    draw(drawer) {
-        // Draw every line field
-        for (let el = 0; el < this.path.length; el++) {
-            let pathLength = this.path[el].path.length - 1;
-            let c = this.getColor(this.path[el]);
-
-            if(!this.path[el].madeByUser)
-                drawer.noFill().strokeWeight(1);
-            else
-                drawer.noFill().strokeWeight(3);
-
-            if(!this.path[el].path[pathLength - 1])
-                continue;
-
-            drawer
-                .stroke(`rgb(${c.r}, ${c.g}, ${c.b})`)
-                .line3D(
-                    this.path[el].path[pathLength - 1].x,
-                    this.path[el].path[pathLength - 1].y,
-                    this.path[el].path[pathLength - 1].z,
-                    this.path[el].path[pathLength].x,
-                    this.path[el].path[pathLength].y,
-                    this.path[el].path[pathLength].z
-                );
-        }
-
-        // Draw particle sources
+    drawSpheres(drawer) {
         for (let i = 0; i < this.particles.length; i++) {
             let c = this.drawingVals.colors.positive;
             if(this.particles[i].q < 0)
@@ -212,6 +188,53 @@ class Field {
                 this.particles[i].z,
                 Field.particuleDRadius
             );
+        }
+    }
+
+
+    /**
+    * Draw on the screen
+    * @param drawer The drawer class parameter
+    */
+    draw(drawer) {
+        background(0);
+
+    	// Draw particle sources
+	    this.drawSpheres(drawer);
+
+
+        // Draw every line field
+        for (let el = 0; el < this.path.length; el++) {
+            let pathLength = this.path[el].path.length - 1;
+            let c = this.getColor(this.path[el]);
+
+            if(!this.path[el].madeByUser)
+                drawer.noFill().strokeWeight(1);
+            else
+                drawer.noFill().strokeWeight(3);
+
+            if(!this.path[el].path[pathLength - 1])
+                continue;
+
+            // let i = pathLength;
+            let it = 10;
+            for (let i = 0; i <= pathLength - it; i += it) {
+                c = { r : 255, g : 255, b : 255 };
+
+                if(Math.sqrt((this.path[el].path[i].x - this.path[el].path[i + it].x)**2 + (this.path[el].path[i].y - this.path[el].path[i + it].y)**2 + (this.path[el].path[i].z - this.path[el].path[i + it].z)**2) < 0.0008)
+                    continue;
+
+                drawer
+                    .stroke(`rgb(${c.r}, ${c.g}, ${c.b})`)
+                    .line3D(
+                        this.path[el].path[i].x,
+                        this.path[el].path[i].y,
+                        this.path[el].path[i].z,
+                        this.path[el].path[i + it].x,
+                        this.path[el].path[i + it].y,
+                        this.path[el].path[i + it].z
+                    );
+            }
         }
     }
 
