@@ -2,7 +2,7 @@
 <html lang="fr">
     <head>
         <meta charset="utf-8">
-        <title>Champ Electrique</title>
+        <title>Champ Electrostatique</title>
 
         <style>
 			body {
@@ -15,33 +15,6 @@
 			#simulationContent {
 				text-align: center;
 			}
-
-            .controls {
-                text-align: left;
-                position: absolute;
-                top: 2%;
-                padding: 12px 12px 12px 12px;
-                font-size: 12px;
-                margin: 0 0 0 72px;
-                background-color: #202020;
-                border-radius: 16px;
-            }
-
-            .buttons {
-                display: flex;
-                text-align: center;
-                position: absolute;
-                top: 89%;
-                padding: 12px 12px 12px 12px;
-                font-size: 17px;
-                margin: 0 0 0 72px;
-                background-color: #202020;
-                border-radius: 16px;
-            }
-
-            .buttons > button, .buttons > select, .buttons > div > label {
-                margin: 0 5px 0 5px;
-            }
 		</style>
 
         <script type="text/javascript" src="src/Field.js"></script>
@@ -50,6 +23,8 @@
 
         <script src="https://cdn.jsdelivr.net/npm/gpu.js@latest/dist/gpu-browser.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
+
+        <script src="dat.gui.min.js"></script>
         <script src="pSEngine.min.js"></script>
     </head>
 
@@ -57,28 +32,10 @@
         <div id="simulationContent">
 		</div>
 
-        <div class="controls">
+        <!-- <div class="controls">
             <label>Contrôles :</label><br />
             <label>  - (<i>En simulation</i>) : Clic gauche pour ajouter une ligne de champ personnalisée</label><br />
             <label>  - (<i>Simulation personnalisée</i>) : Clic gauche pour ajouter une particule positive (maintenir shift pour négative)</label>
-        </div>
-
-        <div class="buttons">
-            <div class="main-simulation">
-                <label>Type de simulation :
-                <select name="simuType" id="simuType" value="condensateur" onchange="updatedSimuType()">
-                    <option value="condensateur">Condensateur</option>
-                    <option value="lineaire">Deux particules</option>
-                    <option value="triangle">Triangle</option>
-                    <option value="random">Aléatoire</option>
-                    <option value="custom">Personnalisé</option>
-                </select></label>
-            </div>
-
-            <div id="options" class="main-parameters">
-            </div>
-
-            <button type="submit" onclick="submitSimuType()">Simuler</button>
-        </div>
+        </div> -->
     </body>
 </html>
