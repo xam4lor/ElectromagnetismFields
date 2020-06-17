@@ -1,6 +1,6 @@
 let config = {
     main : {
-        line_density : 4,       // Number of line field around each particle (35)
+        line_density : 15,       // Number of line field around each particle (35)
         minFieldMag  : 2*10e-10  // Minimum magnitude to stop drawing
     },
     colorRepresentation : {
@@ -23,11 +23,44 @@ let config = {
 
 
 function runSimulator(simulator) {
+    // p5 bug correction
+    p5.RendererGL.prototype.endShape = function(
+        mode,
+        isCurve,
+        isBezier,
+        isQuadratic,
+        isContour,
+        shapeKind
+    ) {
+        this._processVertices(...arguments);
+        if (this._doFill) {
+            if (this.immediateMode.geometry.vertices.length > 1) {
+                this._drawImmediateFill();
+            }
+        }
+        if (this._doStroke) {
+            if (this.immediateMode.geometry.lineVertices.length > 1) {
+                this._drawImmediateStroke();
+            }
+        }
+
+        this.isBezier = false;
+        this.isQuadratic = false;
+        this.isCurve = false;
+        this.immediateMode._bezierVertex.length = 0;
+        this.immediateMode._quadraticVertex.length = 0;
+        this.immediateMode._curveVertex.length = 0;
+        return this;
+    };
+
+
+
+
+
     simulator
         .setEngineConfig((eC) => {
             eC.plotter.scale = { x : 1.3*2*10e-3, y : 1.3*2*10e-3, z : 1.3*2*10e-3 };
             eC.plotter.displayGrid = false;
-            eC.plotter.backgroundColor.draw = false;
             eC.plotter.scale.squareByX = true;
         })
         .addObjects(

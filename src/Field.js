@@ -32,12 +32,9 @@ class Field {
         _pSimulationInstance.plotter.drawer.line3D = (x0, y0, z0, x1, y1, z1) => {
             let v0 = _pSimulationInstance.plotter.computeForXYZ(x0, y0, z0);
             let v1 = _pSimulationInstance.plotter.computeForXYZ(x1, y1, z1);
-            push();
-                beginShape();
-                    vertex(v0.x, v0.y, v0.z);
-                    vertex(v1.x, v1.y, v1.z);
-                endShape();
-            pop();
+
+            vertex(v0.x, v0.y, v0.z);
+            vertex(v1.x, v1.y, v1.z);
             return _pSimulationInstance.plotter.drawer;
         };
 
@@ -58,8 +55,11 @@ class Field {
         this.particles   = particles;
         this.step        = step + 1;
         this.toAdd       = [];
+        this.toDraw      = [];
+        this.toDrawDraw  = [];
         this.pathStop    = []; // list of every lines that are finished
         this.canStop     = false;
+        this.counter     = 0;
         this.drawingVals = drawingVals;
 
 
@@ -93,6 +93,7 @@ class Field {
                 madeByUser : false,
                 newFieldMag : 0
             };
+            this.toDraw[el] = { path : [ this.path[el].path[0] ] };
         }
 
         window.mouseClicked = this.onClick;
@@ -138,14 +139,35 @@ class Field {
 
             if(fieldMag > 10e-5)
                 fieldAtPosC.vec.normalize().mult(10e-5);
-            else if(this.canStop && !this.path[lineID].madeByUser && Math.sqrt((fieldAtPosC.vec.x - this.particles[p].x)**2 + (fieldAtPosC.vec.y - this.particles[p].y)**2 + (fieldAtPosC.vec.z - this.particles[p].z)**2) < this.particles[p].r) {
+            else if(this.canStop && !this.path[lineID].madeByUser && Vector.dist(fieldAtPosC.vec, this.particles[p]) < this.particles[p].r) {
                 this.path.splice(lineID, 1);
                 return;
             }
         }
 
         // Add next point to current line
-        this.path[lineID].path.push(fieldAtPosC.vec.mult(this.step).add(lastElement));
+        let v = fieldAtPosC.vec.mult(this.step).add(lastElement);
+        this.path[lineID].path.push(v);
+
+        // Add to draw elements
+        let d = Vector.dist(
+            this.toDraw[lineID].path[this.toDraw[lineID].path.length - 1],
+            this.path  [lineID].path[this.path  [lineID].path.length - 1]
+        );
+
+        // line res approximation
+        let res = 10;
+
+        let len = this.toDraw[lineID].path.length;
+        if (this.counter % res == 0) {
+            let copy = this.toDraw[lineID].path[len - 1].copy();
+            this.toDraw[lineID].path = this.toDraw[lineID].path.slice(0, len - res);
+            this.toDraw[lineID].path.push(copy);
+            this.counter = 0;
+        }
+
+        if (d < 0.0008) // d > 0.0007
+            this.toDraw[lineID].path.push(v);
     }
 
 
@@ -155,10 +177,6 @@ class Field {
     */
     update(dt) {
     	lights();
-
-        // Orbit control
-        // if(mouseIsPressed)
-            // window.submitSimuType();
         orbitControl(5, 5);
 
 
@@ -167,6 +185,8 @@ class Field {
 
         for (let i = 0; i < this.toAdd.length; i++)
             this.path.push(this.toAdd[i]);
+
+        this.counter++;
 
         this.toAdd = [];
     }
@@ -197,45 +217,43 @@ class Field {
     * @param drawer The drawer class parameter
     */
     draw(drawer) {
-        background(0);
-
     	// Draw particle sources
 	    this.drawSpheres(drawer);
 
+        let count = 0;
 
         // Draw every line field
-        for (let el = 0; el < this.path.length; el++) {
-            let pathLength = this.path[el].path.length - 1;
-            let c = this.getColor(this.path[el]);
+        for (let el = 0; el < this.toDraw.length; el++) {
+            noFill();
+            beginShape(LINES);
 
-            if(!this.path[el].madeByUser)
+            count += this.toDraw[el].path.length - 1;
+
+            if(!this.toDraw[el].madeByUser)
                 drawer.noFill().strokeWeight(1);
             else
                 drawer.noFill().strokeWeight(3);
 
-            if(!this.path[el].path[pathLength - 1])
-                continue;
-
-            // let i = pathLength;
-            let it = 10;
-            for (let i = 0; i <= pathLength - it; i += it) {
-                c = { r : 255, g : 255, b : 255 };
-
-                if(Math.sqrt((this.path[el].path[i].x - this.path[el].path[i + it].x)**2 + (this.path[el].path[i].y - this.path[el].path[i + it].y)**2 + (this.path[el].path[i].z - this.path[el].path[i + it].z)**2) < 0.0008)
-                    continue;
+            for (let i = 1; i <= this.toDraw[el].path.length - 1; i += 1) {
+                // let c = this.getColor(this.toDraw[el]);
+                let c = { r : 255, g : 255, b : 255 };
 
                 drawer
                     .stroke(`rgb(${c.r}, ${c.g}, ${c.b})`)
                     .line3D(
-                        this.path[el].path[i].x,
-                        this.path[el].path[i].y,
-                        this.path[el].path[i].z,
-                        this.path[el].path[i + it].x,
-                        this.path[el].path[i + it].y,
-                        this.path[el].path[i + it].z
+                        this.toDraw[el].path[i - 1].x,
+                        this.toDraw[el].path[i - 1].y,
+                        this.toDraw[el].path[i - 1].z,
+                        this.toDraw[el].path[i    ].x,
+                        this.toDraw[el].path[i    ].y,
+                        this.toDraw[el].path[i    ].z
                     );
             }
+
+            endShape();
         }
+
+        // console.log("Lignes dessinées : " + count);
     }
 
 
@@ -284,18 +302,18 @@ class Field {
     * @param val Current field value to be colored
     * @return a color {x, y, z}
     */
-    getColor(el) {
-        let p = ((el.newFieldMag - this.drawingVals.values.min) / this.drawingVals.values.max + 1) / 2;
-
-        if(el.newFieldMag > this.drawingVals.values.max)
-            p = 1;
-        if(p < 0)
-            p = 0;
-
-        el.color.r = Math.round(this.drawingVals.colors.positive.r * p + this.drawingVals.colors.negative.r * (1 - p));
-        el.color.g = Math.round(this.drawingVals.colors.positive.g * p + this.drawingVals.colors.negative.g * (1 - p));
-        el.color.b = Math.round(this.drawingVals.colors.positive.b * p + this.drawingVals.colors.negative.b * (1 - p));
-
-        return el.color;
-    }
+    // getColor(el) {
+    //     let p = ((el.newFieldMag - this.drawingVals.values.min) / this.drawingVals.values.max + 1) / 2;
+    //
+    //     if(el.newFieldMag > this.drawingVals.values.max)
+    //         p = 1;
+    //     if(p < 0)
+    //         p = 0;
+    //
+    //     el.color.r = Math.round(this.drawingVals.colors.positive.r * p + this.drawingVals.colors.negative.r * (1 - p));
+    //     el.color.g = Math.round(this.drawingVals.colors.positive.g * p + this.drawingVals.colors.negative.g * (1 - p));
+    //     el.color.b = Math.round(this.drawingVals.colors.positive.b * p + this.drawingVals.colors.negative.b * (1 - p));
+    //
+    //     return el.color;
+    // }
 }
