@@ -1,6 +1,5 @@
 let config = {
     main : {
-        line_density : 35,       // Number of line field around each particle
         minFieldMag  : 2*10e-10  // Minimum magnitude to stop drawing
     },
     colorRepresentation : {
@@ -10,14 +9,14 @@ let config = {
             auto : true      // Auto-compute theses values
         },
         colors : {
-            positive : { r : 255, g: 0, b: 0   },   // Positive particles color
-            negative : { r :   0, g: 0, b: 255 }    // Negative particles color
+            positive : { r : 255, g: 0, b: 0 },
+            negative : { r : 0, g: 0, b: 255 }
         }
     },
     advanced : {
         stepSize : 0,   // Step drawing size (>0, 0 for no loss)
         model    : Models.m.CONDENSATEUR,
-        model_options : [1, -1, 1]
+        model_options : []
     }
 };
 
@@ -88,14 +87,21 @@ class pSimulationText {
             };
         }
     }
+
+
+    // Config
+    'Densité du tracé' = 35;
+    'Particules +' = [255, 0, 0];
+    'Particules -' = [0, 0, 255];
 }
 
 let gui;
 let pSParam = {};
+let pointersF2 = [];
 let pointersF3 = [];
 function createInterfaceDatGui() {
     let pStext = new pSimulationText();
-    gui  = new dat.GUI();
+    gui = new dat.GUI();
 
     pSParam.f1 = gui.addFolder('Type de simulation');
     pSParam.f1.add(pStext, 'Modèle', {
@@ -109,7 +115,10 @@ function createInterfaceDatGui() {
     pSParam.f1.open();
 
     pSParam.f2 = gui.addFolder('Paramètres du moteur');
-    // f2.add(pStext, 'growthSpeed');
+    pointersF2.push(pSParam.f2.add(pStext, 'Densité du tracé', 1, 100));
+    pointersF2.push(pSParam.f2.addColor(pStext, 'Particules +'));
+    pointersF2.push(pSParam.f2.addColor(pStext, 'Particules -'));
+
 
     pSParam.f3 = pSParam.f1.addFolder('Signe des particules');
     pSParam.f3.hide();
@@ -127,7 +136,7 @@ function runSimulator(simulator) {
         })
         .addObjects(
             Field, 1, Models.getModel(config.advanced.model, config.advanced.model_options),
-            config.main.line_density, config.advanced.stepSize, config.main.minFieldMag,
+            Math.round(pointersF2[0].getValue()), config.advanced.stepSize, config.main.minFieldMag,
             config.colorRepresentation
         );
 
@@ -210,10 +219,15 @@ function submitSimuType() {
             };
     }
 
+    config.colorRepresentation.colors = {
+        positive : { r : Math.round(pointersF2[1].getValue()[0]), g: Math.round(pointersF2[1].getValue()[1]), b: Math.round(pointersF2[1].getValue()[2]) },
+        negative : { r : Math.round(pointersF2[2].getValue()[0]), g: Math.round(pointersF2[2].getValue()[1]), b: Math.round(pointersF2[2].getValue()[2]) }
+    };
+
 
     _pSimulationInstance.plotter.objectsL = [];
     _pSimulationInstance.plotter.objectsL.push(
-        new Field(Models.getModel(config.advanced.model, config.advanced.model_options), config.main.line_density,
+        new Field(Models.getModel(config.advanced.model, config.advanced.model_options), Math.round(pointersF2[0].getValue()),
         config.advanced.stepSize, config.main.minFieldMag, config.colorRepresentation)
     );
 }
