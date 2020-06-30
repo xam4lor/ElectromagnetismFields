@@ -39,6 +39,8 @@ class Field {
 
         window.setTimeout(function() {
             let path = window._pSimulationInstance.plotter.objectsL[0];
+            if (!path)
+                return;
             for (let i = 0; i < path.length; i++)
                 if(path[i].madeByUser)
                     window._pSimulationInstance.plotter.objectsL[0].path[i].path = [new Vector(Infinity, Infinity)];

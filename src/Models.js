@@ -102,7 +102,7 @@ class Models {
             r : Models.particleRadius
         });
 
-        q > 0 ? fill('red') : fill('green');
+        q > 0 ? fill('red') : fill('blue');
         ellipse(x, y, Field.particuleDRadius, Field.particuleDRadius);
     }
 }

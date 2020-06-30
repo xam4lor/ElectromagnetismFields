@@ -36,6 +36,9 @@ class pSimulationText {
 
     'n = ' = 5;
 
+    'Particule +' = 'Faites clic droit';
+    'Particule -' = 'Maintenez shift';
+
 
     // Fonctions
     updatedSimulationType(model) {
@@ -70,14 +73,20 @@ class pSimulationText {
             pSParam.f3.open();
             pSParam.f3.show();
         }
-        // else if(model == Models.m.CUSTOM) {
-        //     background(0);
-        //     _pSimulationInstance.plotter.objectsL = [];
-        //     Models.tmpParticles = [];
-        //     window.mouseClicked = function() {
-        //         Models.newParticule(mouseX, mouseY, keyIsDown(SHIFT) ? -1 : +1);
-        //     };
-        // }
+        else if(model == Models.m.CUSTOM) {
+            pointersF3.push(pSParam.f3.add(this.object, 'Particule +'));
+            pointersF3.push(pSParam.f3.add(this.object, 'Particule -'));
+            pSParam.f3.open();
+            pSParam.f3.show();
+
+            background(0);
+            _pSimulationInstance.plotter.objectsL = [];
+            Models.tmpParticles = [];
+
+            window.mouseClicked = function() {
+                Models.newParticule(mouseX, mouseY, keyIsDown(SHIFT) ? -1 : +1);
+            };
+        }
     }
 }
 
@@ -94,7 +103,7 @@ function createInterfaceDatGui() {
         Lineaire : "lineaire",
         Triangle : "triangle",
         Aléatoire : "random",
-        // Custom : "custom"
+        Custom : "custom"
     }).onChange(pStext.updatedSimulationType);
     pSParam.f1.add(pStext, 'Simuler');
     pSParam.f1.open();
@@ -121,8 +130,6 @@ function runSimulator(simulator) {
             config.main.line_density, config.advanced.stepSize, config.main.minFieldMag,
             config.colorRepresentation
         );
-
-    document.getElementById('simuType').value = 'condensateur';
 
     window.windowResized = function() {
         let p = _pSimulationInstance.getCanvasProportions(_pSimulationInstance.config.engine.window.proportions);
@@ -155,7 +162,6 @@ function submitSimuType() {
             config.advanced.model_options = [];
             break;
         case Models.m.LINEAIRE:
-            console.log(pointersF3[0].getValue());
             config.advanced.model_options = [
                 pointersF3[0].getValue() == 'Positive' ? 1 : -1,
                 pointersF3[1].getValue() == 'Positive' ? 1 : -1
@@ -169,7 +175,17 @@ function submitSimuType() {
             ];
             break;
         case Models.m.RANDOM:
-            config.advanced.model_options = [parseInt(pointersF3[0].getValue())];
+            config.advanced.model_options = [
+                parseInt(pointersF3[0].getValue())
+            ];
+            break;
+
+        case Models.m.CUSTOM:
+            pointersF3.forEach((item, i) => {
+                pSParam.f3.remove(item);
+            });
+            pointersF3 = [];
+            pSParam.f3.hide();
             break;
     }
 
