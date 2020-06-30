@@ -27,7 +27,7 @@ function runSimulator(simulator) {
             eC.plotter.scale = { x : 1.3*2*10e-3, y: 2*10e-3 };
             eC.plotter.displayGrid = false;
             eC.plotter.backgroundColor.draw = false;
-            eC.plotter.scale.squareByX = true;
+            eC.plotter.squareByX = true;
         })
         .addObjects(
             Field, 1, Models.getModel(config.advanced.model, config.advanced.model_options),
@@ -36,6 +36,12 @@ function runSimulator(simulator) {
         );
 
     document.getElementById('simuType').value = 'condensateur';
+
+    window.windowResized = function() {
+        let p = _pSimulationInstance.getCanvasProportions(_pSimulationInstance.config.engine.window.proportions);
+        resizeCanvas(p.w, p.h);
+        submitSimuType();
+    };
 }
 
 

@@ -139,7 +139,8 @@ class Field {
                 this.particles[i].x,
                 this.particles[i].y,
                 Field.particuleDRadius,
-                Field.particuleDRadius
+                Field.particuleDRadius,
+                true
             );
         }
     }
