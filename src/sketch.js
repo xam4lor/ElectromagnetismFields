@@ -21,7 +21,94 @@ let config = {
     }
 };
 
+
+class pSimulationText {
+    // Paramètres
+    'Modèle' = 'condensateur';
+    Simuler = () => {
+        config.advanced.model = Models.getByName(this['Modèle']);
+        submitSimuType();
+    };
+
+    'Particule 1' = 'Positive';
+    'Particule 2' = 'Positive';
+    'Particule 3' = 'Positive';
+
+    'n = ' = 5;
+
+
+    // Fonctions
+    updatedSimulationType(model) {
+        window.mouseClicked = () => {};
+        _pSimulationInstance.plotter.objectsL = [];
+
+        pointersF3.forEach((item, i) => {
+            pSParam.f3.remove(item);
+        });
+        pointersF3 = [];
+
+        pSParam.f3.name = 'Signe des particules';
+        pSParam.f3.hide();
+
+        if(model == Models.m.CONDENSATEUR) {}
+        else if(model == Models.m.LINEAIRE) {
+            pointersF3.push(pSParam.f3.add(this.object, 'Particule 1', { '+1' : 'Positive', '-1' : 'Négative' }));
+            pointersF3.push(pSParam.f3.add(this.object, 'Particule 2', { '+1' : 'Positive', '-1' : 'Négative' }));
+            pSParam.f3.open();
+            pSParam.f3.show();
+        }
+        else if(model == Models.m.TRIANGLE) {
+            pointersF3.push(pSParam.f3.add(this.object, 'Particule 1', { '+1' : 'Positive', '-1' : 'Négative' }));
+            pointersF3.push(pSParam.f3.add(this.object, 'Particule 2', { '+1' : 'Positive', '-1' : 'Négative' }));
+            pointersF3.push(pSParam.f3.add(this.object, 'Particule 3', { '+1' : 'Positive', '-1' : 'Négative' }));
+            pSParam.f3.open();
+            pSParam.f3.show();
+        }
+        else if(model == Models.m.RANDOM) {
+            pointersF3.push(pSParam.f3.add(this.object, 'n = ', 1, 300));
+            pSParam.f3.name = 'Nombre de particules';
+            pSParam.f3.open();
+            pSParam.f3.show();
+        }
+        // else if(model == Models.m.CUSTOM) {
+        //     background(0);
+        //     _pSimulationInstance.plotter.objectsL = [];
+        //     Models.tmpParticles = [];
+        //     window.mouseClicked = function() {
+        //         Models.newParticule(mouseX, mouseY, keyIsDown(SHIFT) ? -1 : +1);
+        //     };
+        // }
+    }
+}
+
+let gui;
+let pSParam = {};
+let pointersF3 = [];
+function createInterfaceDatGui() {
+    let pStext = new pSimulationText();
+    gui  = new dat.GUI();
+
+    pSParam.f1 = gui.addFolder('Type de simulation');
+    pSParam.f1.add(pStext, 'Modèle', {
+        Condensateur : "condensateur",
+        Lineaire : "lineaire",
+        Triangle : "triangle",
+        Aléatoire : "random",
+        // Custom : "custom"
+    }).onChange(pStext.updatedSimulationType);
+    pSParam.f1.add(pStext, 'Simuler');
+    pSParam.f1.open();
+
+    pSParam.f2 = gui.addFolder('Paramètres du moteur');
+    // f2.add(pStext, 'growthSpeed');
+
+    pSParam.f3 = pSParam.f1.addFolder('Signe des particules');
+    pSParam.f3.hide();
+}
+
 function runSimulator(simulator) {
+    createInterfaceDatGui();
+
     simulator
         .setEngineConfig((eC) => {
             eC.plotter.scale = { x : 1.3*2*10e-3, y: 2*10e-3 };
@@ -59,55 +146,6 @@ function computeForXYPixels(xP, yP) {
 }
 
 
-function updatedSimuType() {
-    window.mouseClicked = () => {};
-    _pSimulationInstance.plotter.objectsL = [];
-
-
-    config.advanced.model = Models.getByName(document.getElementById('simuType').value);
-    if(config.advanced.model == Models.m.CONDENSATEUR)
-        document.getElementById('options').innerHTML = '';
-    else if(config.advanced.model == Models.m.LINEAIRE)
-        document.getElementById('options').innerHTML = ''
-            + '<label>Signe de la particule 1 :<select name="txt_1" id="txt_1">'
-                + '<option value="+1">Positive</option>'
-                + '<option value="-1">Négative</option>'
-            + '</select></label>'
-            + '<div /><label>Signe de la particule 2 :<select name="txt_2" id="txt_2">'
-                + '<option value="+1">Positive</option>'
-                + '<option value="-1">Négative</option>'
-            + '</select></label>'
-        + '';
-    else if(config.advanced.model == Models.m.TRIANGLE)
-        document.getElementById('options').innerHTML = ''
-            + '<label>Signe de la particule 1 :<select name="txt_1" id="txt_1">'
-                + '<option value="+1">Positive</option>'
-                + '<option value="-1">Négative</option>'
-            + '</select></label>'
-            + '<div /><label>Signe de la particule 2 :<select name="txt_2" id="txt_2">'
-                + '<option value="+1">Positive</option>'
-                + '<option value="-1">Négative</option>'
-            + '</select></label>'
-            + '<div /><label>Signe de la particule 3 :<select name="txt_3" id="txt_3">'
-                + '<option value="+1">Positive</option>'
-                + '<option value="-1">Négative</option>'
-            + '</select></label>'
-        + '';
-    else if(config.advanced.model == Models.m.RANDOM)
-        document.getElementById('options').innerHTML = '<label>Nombre de particules :'
-            + '<input type="number" name="txt_1" value="Nombre de particules" id="txt_1" />'
-        + '</label>';
-    else if(config.advanced.model == Models.m.CUSTOM) {
-        background(0);
-        document.getElementById('options').innerHTML = '';
-        _pSimulationInstance.plotter.objectsL = [];
-        Models.tmpParticles = [];
-
-        window.mouseClicked = function() {
-            Models.newParticule(mouseX, mouseY, keyIsDown(SHIFT) ? -1 : +1);
-        };
-    }
-}
 
 function submitSimuType() {
     background(0);
@@ -117,20 +155,21 @@ function submitSimuType() {
             config.advanced.model_options = [];
             break;
         case Models.m.LINEAIRE:
+            console.log(pointersF3[0].getValue());
             config.advanced.model_options = [
-                parseInt(document.getElementById('txt_1').value),
-                parseInt(document.getElementById('txt_2').value)
+                pointersF3[0].getValue() == 'Positive' ? 1 : -1,
+                pointersF3[1].getValue() == 'Positive' ? 1 : -1
             ];
             break;
         case Models.m.TRIANGLE:
             config.advanced.model_options = [
-                parseInt(document.getElementById('txt_1').value),
-                parseInt(document.getElementById('txt_2').value),
-                parseInt(document.getElementById('txt_3').value)
+                pointersF3[0].getValue() == 'Positive' ? 1 : -1,
+                pointersF3[2].getValue() == 'Positive' ? 1 : -1,
+                pointersF3[1].getValue() == 'Positive' ? 1 : -1
             ];
             break;
         case Models.m.RANDOM:
-            config.advanced.model_options = [parseInt(document.getElementById('txt_1').value)];
+            config.advanced.model_options = [parseInt(pointersF3[0].getValue())];
             break;
     }
 

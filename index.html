@@ -47,6 +47,7 @@
         <script type="text/javascript" src="src/Field.js"></script>
         <script type="text/javascript" src="src/Models.js"></script>
         <script type="text/javascript" src="src/sketch.js"></script>
+        <script type="text/javascript" src="dat.gui.min.js"></script>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
         <script src="https://psengine.mecanicascience.fr/versions/3.0.4/pSEngine.min.js"></script>
@@ -55,29 +56,5 @@
     <body>
         <div id="simulationContent">
 		</div>
-
-        <div class="controls">
-            <label>Contrôles :</label><br />
-            <label>  - (<i>En simulation</i>) : Clic gauche pour ajouter une ligne de champ personnalisée</label><br />
-            <label>  - (<i>Simulation personnalisée</i>) : Clic gauche pour ajouter une particule positive (maintenir shift pour négative)</label>
-        </div>
-
-        <div class="buttons">
-            <div class="main-simulation">
-                <label>Type de simulation :
-                <select name="simuType" id="simuType" value="condensateur" onchange="updatedSimuType()">
-                    <option value="condensateur">Condensateur</option>
-                    <option value="lineaire">Deux particules</option>
-                    <option value="triangle">Triangle</option>
-                    <option value="random">Aléatoire</option>
-                    <option value="custom">Personnalisé</option>
-                </select></label>
-            </div>
-
-            <div id="options" class="main-parameters">
-            </div>
-
-            <button type="submit" onclick="submitSimuType()">Simuler</button>
-        </div>
     </body>
 </html>
