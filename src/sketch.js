@@ -124,14 +124,22 @@ function createInterfaceDatGui() {
     pSParam.f3.hide();
 }
 
+
+
+function preRunSimulator(simulator) {
+	simulator
+		.setPreEngineConfig((engineConf) => {
+			engineConf.plotter.is_3D = true;
+		});
+}
+
 function runSimulator(simulator) {
     createInterfaceDatGui();
 
     simulator
         .setEngineConfig((eC) => {
-            eC.plotter.scale = { x : 1.3*2*10e-3, y: 2*10e-3 };
+            eC.plotter.scale = { x : 2*10e-3, y: 2*10e-3, z: 2*10e-3 };
             eC.plotter.displayGrid = false;
-            eC.plotter.backgroundColor.draw = false;
             eC.plotter.squareByX = true;
         })
         .addObjects(
@@ -149,17 +157,17 @@ function runSimulator(simulator) {
 
 
 
-function computeForXYPixels(xP, yP) {
-    let c = _pSimulationInstance.config.engine.plotter;
-    let v = new Vector((xP * 2 / width - 1) * c.scale.x - c.offset.x);
-
-    if(!c.scale.squareByX)
-        v.y = -((yP * 2 / height - 1) * c.scale.y - c.offset.y);
-    else
-        v.y = -(((yP - height / 2) * 2 / width) * c.scale.x - c.offset.y);
-
-    return v;
-}
+// function computeForXYPixels(xP, yP) {
+//     let c = _pSimulationInstance.config.engine.plotter;
+//     let v = new Vector((xP * 2 / width - 1) * c.scale.x - c.offset.x);
+//
+//     if(!c.scale.squareByX)
+//         v.y = -((yP * 2 / height - 1) * c.scale.y - c.offset.y);
+//     else
+//         v.y = -(((yP - height / 2) * 2 / width) * c.scale.x - c.offset.y);
+//
+//     return v;
+// }
 
 
 
